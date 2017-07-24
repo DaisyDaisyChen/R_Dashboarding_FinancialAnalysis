@@ -1,0 +1,116 @@
+---
+title: "Dashboarding Lab"
+author: "Siyan Chen"
+runtime: shiny
+output: 
+   flexdashboard::flex_dashboard:
+     orientation: columns
+     social: menu
+     source_code : embed
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r,message=FALSE}
+library(flexdashboard)
+library(leaflet)
+library(tidyquant)
+library(dplyr)
+library(dygraphs)
+library(tidyquant)   
+library(tidyverse)
+```
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+To help make decisions on short-term investing on equities, the mostly common method is to apply technical analysis rather than fundamental analysis. The reason is that market players are believed to react similarly towards stock price fluctuations based on EMH. More precisely, the historical price movement shows all the information about the equity itself. We plotted price, return, 15 days moving average as short-term MA and 50 days moving average as long term-MA for Twitter, Microsoft and Apple respectively, and analyzed their price movements from 2014-07-01 to current date. By comparing short-term MA and long-term MA, we found that shot-term MA of Twitter is crossing up through the long-term one. Furthermore, the stock price of twitter is at the bottom of a upcoming wave. Therefore, our investment recommendation is Twitter.
+
+
+
+Row {.tabset}
+-----------------------------------------------------------------------
+### TWITTER
+```{r , warning=FALSE}
+
+
+TWTR <- tq_get("TWTR", get = "stock.prices", from= "2014-07-01", to =format(Sys.Date(),"%Y-%m-%d"))
+m1 <- as.matrix(TWTR[,5])
+ma15 <- SMA(m1, n = 15)
+ma50 <- SMA(m1, n = 50)
+t <- as.matrix(TWTR[,2:5])
+n <- nrow(t)
+re <- (t[1:(n-1),4]-t[2:n,4])/t[2:n,4]
+t <- cbind(t,ma15,ma50,re)
+r <- as.matrix(TWTR[,1])
+rownames(t) <- r
+dygraph(t,main="Twitter") %>%
+  dyCandlestick() %>%
+  dyRangeSelector() %>%
+  dyHighlight(highlightCircleSize = 4,
+              highlightSeriesBackgroundAlpha = 0.3) %>%
+  dySeries("re", label = "Return" , axis = "y2", 
+             strokePattern = "dashed") %>%
+  dyAxis("y2", label = "Return", valueRange = c(-0.5,0.5)) %>%
+  dyAxis("y", label = "Price") %>%
+  dyOptions( axisLineColor = "navy", 
+            gridLineColor = "lightblue") %>%
+  dyUnzoom()
+
+```
+
+### MICROSOFT
+```{r , warning=FALSE}
+
+MSFT <- tq_get("MSFT", get = "stock.prices", from= "2014-07-01", to =format(Sys.Date(),"%Y-%m-%d"))
+m2 <- as.matrix(MSFT[,5])
+ma15 <- SMA(m2, n = 15)
+ma50 <- SMA(m2, n = 50)
+ms <- as.matrix(MSFT[,2:5])
+n <- nrow(ms)
+re2 <- (ms[1:(n-1),4]-ms[2:n,4])/ms[2:n,4]
+ms <- cbind(ms,ma15,ma50,re2)
+r <- as.matrix(MSFT[,1])
+rownames(ms) <- r
+dygraph(ms,main="Microsoft") %>%
+  dyCandlestick() %>%
+  dyRangeSelector() %>%
+  dyHighlight(highlightCircleSize = 4,
+              highlightSeriesBackgroundAlpha = 0.3) %>%
+  dySeries("re2", label = "Return" , axis = "y2", 
+             strokePattern = "dashed") %>%
+  dyAxis("y2", label = "Return", valueRange = c(-0.2,0.2)) %>%
+  dyAxis("y", label = "Price") %>%
+  dyOptions( axisLineColor = "navy", 
+            gridLineColor = "lightblue") %>%
+  dyUnzoom()
+```
+
+### APPLE
+```{r , warning=FALSE}
+
+AAPL <- tq_get("AAPL", get = "stock.prices", from= "2014-07-01", to =format(Sys.Date(),"%Y-%m-%d"))
+m3 <- as.matrix(AAPL[,5])
+ma15 <- SMA(m3, n = 15)
+ma50 <- SMA(m3, n = 50)
+t3 <- as.matrix(AAPL[,2:5])
+n <- nrow(t3)
+re3 <- (t3[1:(n-1),4]-t3[2:n,4])/t3[2:n,4]
+ap <- cbind(t3,ma15,ma50,re3)
+r <- as.matrix(AAPL[,1])
+rownames(ap) <- r
+dygraph(ap,main="Apple") %>%
+  dyCandlestick() %>%
+  dyRangeSelector() %>%
+  dyHighlight(highlightCircleSize = 4,
+              highlightSeriesBackgroundAlpha = 0.3) %>%
+  dySeries("re3", label = "Return" , axis = "y2", 
+             strokePattern = "dashed") %>%
+  dyAxis("y2", label = "Return", valueRange = c(-0.2,0.2)) %>%
+  dyAxis("y", label = "Price") %>%
+  dyOptions( axisLineColor = "navy", 
+            gridLineColor = "lightblue") %>%
+  dyUnzoom()
+```
